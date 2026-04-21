@@ -1,8 +1,10 @@
 #!/bin/bash
 
+echo "🔹 Setting up directories..."
 mkdir -p ~/mapreduce/classes
 cd ~/mapreduce || exit
 
+echo "🔹 Creating WordCount.java..."
 cat > WordCount.java << "EOF"
 import java.io.IOException;
 import java.util.StringTokenizer;
@@ -52,17 +54,31 @@ public class WordCount {
 }
 EOF
 
-echo "hello world hello hadoop" > input.txt
+echo "🔹 Creating input file..."
+cat > input.txt << "EOF"
+hello world hello hadoop
+hadoop is powerful
+mapreduce is scalable
+hello mapreduce world
+big data processing with hadoop
+EOF
 
+echo "🔹 Compiling..."
 javac -classpath `hadoop classpath` -d classes WordCount.java
+
+echo "🔹 Creating JAR..."
 jar -cvf wordcount.jar -C classes/ .
 
+echo "🔹 Cleaning HDFS..."
 hdfs dfs -rm -r /input >/dev/null 2>&1
 hdfs dfs -rm -r /output >/dev/null 2>&1
 
+echo "🔹 Uploading input to HDFS..."
 hdfs dfs -mkdir /input
 hdfs dfs -put input.txt /input
 
+echo "🔹 Running MapReduce job..."
 hadoop jar wordcount.jar WordCount /input /output
 
+echo "🔹 Final Output:"
 hdfs dfs -cat /output/part-r-00000
